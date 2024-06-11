@@ -41,11 +41,11 @@ def load_data(filename:str) -> pd.DataFrame:
     return data
 
 # Load data from CSV files and preprocess
-df_teritary = load_data("data/teritary_educational_filter.txt")
+df_teritary = load_data("teritary_educational_filter.txt")
 df_teritary = df_teritary[df_teritary['name'] != 'EU']
-df_medical = load_data("data/medical_examination_filter.txt")
+df_medical = load_data("medical_examination_filter.txt")
 df_medical = df_medical[df_medical['name'] != 'EU']
-df_digital = load_data("data/basic_digital_noms.txt")
+df_digital = load_data("basic_digital_noms.txt")
 df_digital = df_digital[df_digital['name'] != 'EU']
 
 # Combine unique country names from all datasets
