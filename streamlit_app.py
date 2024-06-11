@@ -15,13 +15,23 @@ from io import BytesIO
 import plotly.graph_objects as go
 import numpy as np
 from color_mapping import create_color_mapping, create_abbreviation_mapping
-
+from st_pages import Page, show_pages
 # ------ FUNCTIONS ------
 st.set_page_config(
         page_title="Gender Gap Dashboard",
         layout="wide",
         initial_sidebar_state="expanded",
     )
+
+show_pages(
+    [
+        Page("streamlit_app.py", "Home", "🏠"),
+        Page("pages/1_📚_Education.py", "Education", "📚"),
+        Page("pages/2_📊_Employment.py", "Employment", "📊"),
+        Page("pages/3_🏥_Well-being.py", "Well-being", "🏥"),
+        Page("pages/4_❓_Help.py", "Help", "❓"),
+    ]
+)
 
 def page():
     """
