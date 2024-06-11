@@ -1,0 +1,175 @@
+geo,name,age,OBS_VALUE
+AT,Austria,15-74,5
+AT,Austria,18-29,6
+AT,Austria,30-39,8
+AT,Austria,40-49,3
+AT,Austria,50-59,4
+AT,Austria,60+,4
+BE,Belgium,15-74,11
+BE,Belgium,18-29,18
+BE,Belgium,30-39,13
+BE,Belgium,40-49,11
+BE,Belgium,50-59,8
+BE,Belgium,60+,4
+BG,Bulgaria,15-74,8
+BG,Bulgaria,18-29,12
+BG,Bulgaria,30-39,11
+BG,Bulgaria,40-49,5
+BG,Bulgaria,50-59,8
+BG,Bulgaria,60+,5
+CY,Cyprus,15-74,5
+CY,Cyprus,18-29,6
+CY,Cyprus,30-39,4
+CY,Cyprus,40-49,3
+CY,Cyprus,50-59,4
+CY,Cyprus,60+,6
+CZ,Czech Republic,15-74,8
+CZ,Czech Republic,18-29,10
+CZ,Czech Republic,30-39,13
+CZ,Czech Republic,40-49,8
+CZ,Czech Republic,50-59,6
+CZ,Czech Republic,60+,2
+DE,Germany,15-74,8
+DE,Germany,18-29,17
+DE,Germany,30-39,10
+DE,Germany,40-49,7
+DE,Germany,50-59,5
+DE,Germany,60+,4
+DK,Denmark,15-74,11
+DK,Denmark,18-29,22
+DK,Denmark,30-39,10
+DK,Denmark,40-49,11
+DK,Denmark,50-59,8
+DK,Denmark,60+,4
+EE,Estonia,15-74,5
+EE,Estonia,18-29,8
+EE,Estonia,30-39,3
+EE,Estonia,40-49,9
+EE,Estonia,50-59,2
+EE,Estonia,60+,1
+EL,Greece,15-74,7
+EL,Greece,18-29,9
+EL,Greece,30-39,9
+EL,Greece,40-49,11
+EL,Greece,50-59,5
+EL,Greece,60+,2
+ES,Spain,15-74,4
+ES,Spain,18-29,4
+ES,Spain,30-39,6
+ES,Spain,40-49,3
+ES,Spain,50-59,3
+ES,Spain,60+,3
+EU,European Union,15-74,8
+EU,European Union,18-29,12
+EU,European Union,30-39,9
+EU,European Union,40-49,8
+EU,European Union,50-59,5
+EU,European Union,60+,4
+FI,Finland,15-74,10
+FI,Finland,18-29,22
+FI,Finland,30-39,14
+FI,Finland,40-49,8
+FI,Finland,50-59,7
+FI,Finland,60+,3
+FR,France,15-74,11
+FR,France,18-29,22
+FR,France,30-39,13
+FR,France,40-49,9
+FR,France,50-59,6
+FR,France,60+,5
+HR,Croatia,15-74,5
+HR,Croatia,18-29,6
+HR,Croatia,30-39,3
+HR,Croatia,40-49,6
+HR,Croatia,50-59,5
+HR,Croatia,60+,6
+HU,Hungary,15-74,9
+HU,Hungary,18-29,12
+HU,Hungary,30-39,13
+HU,Hungary,40-49,8
+HU,Hungary,50-59,8
+HU,Hungary,60+,5
+IE,Ireland,15-74,8
+IE,Ireland,18-29,14
+IE,Ireland,30-39,6
+IE,Ireland,40-49,6
+IE,Ireland,50-59,8
+IE,Ireland,60+,3
+IT,Italy,15-74,7
+IT,Italy,18-29,6
+IT,Italy,30-39,8
+IT,Italy,40-49,9
+IT,Italy,50-59,4
+IT,Italy,60+,8
+LT,Lithuania,15-74,6
+LT,Lithuania,18-29,4
+LT,Lithuania,30-39,8
+LT,Lithuania,40-49,8
+LT,Lithuania,50-59,5
+LT,Lithuania,60+,2
+LU,Luxembourg,15-74,7
+LU,Luxembourg,18-29,10
+LU,Luxembourg,30-39,6
+LU,Luxembourg,40-49,7
+LU,Luxembourg,50-59,5
+LU,Luxembourg,60+,5
+LV,Latvia,15-74,6
+LV,Latvia,18-29,9
+LV,Latvia,30-39,9
+LV,Latvia,40-49,7
+LV,Latvia,50-59,6
+LV,Latvia,60+,2
+MT,Malta,15-74,5
+MT,Malta,18-29,8
+MT,Malta,30-39,7
+MT,Malta,40-49,4
+MT,Malta,50-59,5
+MT,Malta,60+,2
+NL,Netherlands,15-74,11
+NL,Netherlands,18-29,22
+NL,Netherlands,30-39,11
+NL,Netherlands,40-49,11
+NL,Netherlands,50-59,9
+NL,Netherlands,60+,5
+PL,Poland,15-74,4
+PL,Poland,18-29,5
+PL,Poland,30-39,6
+PL,Poland,40-49,5
+PL,Poland,50-59,4
+PL,Poland,60+,2
+PT,Portugal,15-74,6
+PT,Portugal,18-29,4
+PT,Portugal,30-39,6
+PT,Portugal,40-49,9
+PT,Portugal,50-59,7
+PT,Portugal,60+,4
+RO,Romania,15-74,7
+RO,Romania,18-29,9
+RO,Romania,30-39,6
+RO,Romania,40-49,10
+RO,Romania,50-59,6
+RO,Romania,60+,4
+SE,Sweden,15-74,11
+SE,Sweden,18-29,22
+SE,Sweden,30-39,11
+SE,Sweden,40-49,10
+SE,Sweden,50-59,8
+SE,Sweden,60+,5
+SI,Slovenia,15-74,3
+SI,Slovenia,18-29,6
+SI,Slovenia,30-39,2
+SI,Slovenia,40-49,3
+SI,Slovenia,50-59,3
+SI,Slovenia,60+,1
+SK,Slovakia,15-74,10
+SK,Slovakia,18-29,12
+SK,Slovakia,30-39,10
+SK,Slovakia,40-49,12
+SK,Slovakia,50-59,9
+SK,Slovakia,60+,6
+UK,United Kingdom,15-74,8
+UK,United Kingdom,18-29,17
+UK,United Kingdom,30-39,6
+UK,United Kingdom,40-49,8
+UK,United Kingdom,50-59,3
+UK,United Kingdom,60+,6
