@@ -245,12 +245,12 @@ def main():
 
     with tab2:
         # Get the mappings
-        color_mapping = create_color_mapping()
+        st.session_state.color_mapping = create_color_mapping()
         abbreviation_mapping = create_abbreviation_mapping()
 
         with st.expander('## Legend of Region Colors'):
             cols = st.columns(4)  # Adjust the number of columns as needed
-            color_items = list(color_mapping.items())
+            color_items = list(st.session_state.color_mapping.items())
             num_items = len(color_items)
             items_per_col = 10  # Distribute items across columns
 
@@ -345,8 +345,6 @@ def main():
             regions = np.intersect1d(df_adult['name'].unique(), regions)
 
             selected_regions = st.multiselect('Select regions:', options=regions, default=['Netherlands'])
-
-            st.session_state.color_mapping = create_color_mapping()
 
             # Filter the data by the selected year and regions, and only for 'F' (female)
             filtered_data = combined_data[
@@ -476,7 +474,6 @@ def main():
 
         # Calculate mean only for numerical columns by gender
         df_mean = df_numeric.groupby('sex').mean().reset_index()
-        print(df_mean)
 
         columns_of_interest = [
             'Employed Rate',
