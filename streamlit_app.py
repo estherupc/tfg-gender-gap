@@ -16,6 +16,7 @@ import plotly.graph_objects as go
 import numpy as np
 from color_mapping import create_color_mapping, create_abbreviation_mapping
 from st_pages import Page, show_pages
+
 # ------ FUNCTIONS ------
 st.set_page_config(
         page_title="Gender Gap Dashboard",
@@ -26,12 +27,13 @@ st.set_page_config(
 show_pages(
     [
         Page("streamlit_app.py", "Home", "🏠"),
-        Page("pages/1_📚_Education.py", "Education", "📚"),
-        Page("pages/2_📊_Employment.py", "Employment", "📊"),
-        Page("pages/3_🏥_Well-being.py", "Well-being", "🏥"),
-        Page("pages/4_❓_Help.py", "Help", "❓"),
+        Page("pages/1_📚_Education.py"),
+        Page("pages/2_📊_Employment.py"),
+        Page("pages/3_🏥_Well-being.py"),
+        Page("pages/4_❓_Help.py"),
     ]
 )
+
 
 def page():
     """
