@@ -20,7 +20,6 @@ initial_sidebar_state="expanded")
 
 st.title("🏥 Well-being")
 st.markdown("---")
-st.sidebar.header("Well-being")
 st.write(
     """Well-being is a multifaceted concept that encompasses physical, mental, and social health. This section presents data on indicators such as healthy life expectancy, self-reported unmet need for medical examination and care, self-reported well-being, fatal accidents at work and standardised death rate due to homicide. """
 )
@@ -80,7 +79,7 @@ with cols[0]:
         x=alt.X('OBS_VALUE_Life:Q', title='Healthy life years', scale=alt.Scale(domain=(min_value_life, max_value_life))),
         y=alt.Y('OBS_VALUE_Health:Q', title='Percentage of Percived Good Health', scale=alt.Scale(domain=(min_value_health, max_value_health))),
         color=alt.Color('sex:N', scale = color_sex, legend=alt.Legend(title="Sex")),
-        tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year'), alt.Tooltip('OBS_VALUE_Life:Q', title='Healthy Life Years'), alt.Tooltip('OBS_VALUE_Health:Q', title='% of Percived Good Health')]
+        tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year'), alt.Tooltip('OBS_VALUE_Life:Q', title='Healthy Life Years'), alt.Tooltip('OBS_VALUE_Health:Q', title='% of Good Health')]
     ).properties(
         width=400,
         height=400,
@@ -96,10 +95,10 @@ with cols[1]:
     st.write("")
     st.write("")
     chart = alt.Chart(df_health_good).mark_circle().encode(
-        x=alt.X('TIME_PERIOD:O', title='Year'),
+        x=alt.X('TIME_PERIOD:O', title='Year', axis=alt.Axis(labelAngle=0, grid=True)),
         y=alt.Y('mean(OBS_VALUE)', title='Percentage of Percived Good Health'),
         color=alt.Color('sex:N', scale = color_sex, legend=alt.Legend(title="Sex")),
-        tooltip=[alt.Tooltip('mean(OBS_VALUE):Q', title='% of Mean Good Health'), alt.Tooltip('TIME_PERIOD:O', title='Year'), ]
+        tooltip=[alt.Tooltip('mean(OBS_VALUE):Q', title='% of Mean Good Health', format='.2f'), alt.Tooltip('TIME_PERIOD:O', title='Year'), ]
     ).properties(
         width=400,
         height=400,
@@ -162,7 +161,7 @@ fig.update_layout(
     height=700,  # Adjust chart height
     xaxis=dict(
         title='Year',
-        tickangle=-90,  # Rotate x-axis labels
+        tickangle=0,  # Rotate x-axis labels
         dtick=1,
         automargin=True  # Automatically adjust margins
     ),
@@ -268,7 +267,7 @@ with cols[0]:
     lines = alt.Chart(df_combined).mark_line().encode(
         x=alt.X('OBS_VALUE:Q', title='Incidence rate'),
         y=alt.Y('TIME_PERIOD:O', title=''),
-        color=alt.value('black'),
+        color=alt.value('grey'),
         detail=['name:N', 'TIME_PERIOD:N']
     )
 
@@ -354,7 +353,7 @@ with cols[2]:
         x = alt.X('OBS_VALUE_Emp:Q', title='Percentage of population employed'),
         y= alt.Y('OBS_VALUE_Acc:Q', title= 'Rate of incidents'),
         color=alt.Color('sex:N', scale=color_sex, title='Sex'),
-        tooltip=[alt.Tooltip('OBS_VALUE_Emp:Q', title='% of population employed'), alt.Tooltip('OBS_VALUE_Acc:Q', title='Rate of incidents'), alt.Tooltip('sex:N', title='Sex')]
+        tooltip=[alt.Tooltip('OBS_VALUE_Emp:Q', title='% Employment'), alt.Tooltip('OBS_VALUE_Acc:Q', title='Rate of incidents'), alt.Tooltip('sex:N', title='Sex')]
     ).properties(
         width=270,
         height=270,
@@ -524,16 +523,37 @@ with cols[0]:
 
     df_filtered = df_homicide_l[df_homicide_l['TIME_PERIOD'] == selected_year]
 
+    all_years = df_homicide_l['TIME_PERIOD'].unique()
+    all_regions = df_homicide_l['name'].unique()
+    all_sex = df_homicide_l['sex'].unique()
+    full_index = pd.MultiIndex.from_product([all_regions, all_sex], names=['name', 'sex'])
+    full_df = pd.DataFrame(index=full_index).reset_index()
+
+    # Completar el DataFrame original
+    df_complete = pd.merge(full_df, df_filtered, on=['name', 'sex'], how='left')
+
+    placeholder_value = -999
+    df_complete['OBS_VALUE'].fillna(placeholder_value, inplace=True)
+    df_complete['OBS_VALUE_Display'] = df_complete['OBS_VALUE'].apply(
+        lambda x: f"{x:.2f}%" if x != placeholder_value else "No Data"
+    )
+    df_complete['Percentage'].fillna(placeholder_value, inplace=True)
+    df_complete['Percentage_Display'] = df_complete['Percentage'].apply(
+        lambda x: f"{x:.2f}%" if x != placeholder_value else "No Data"
+    )
+
+
     # Create the chart with the order based on ‘max_value’.
-    chart = alt.Chart(df_filtered).mark_bar().encode(
+    chart = alt.Chart(df_complete).mark_bar().encode(
         y=alt.Y('name:N', title = "Region",  scale=alt.Scale(domain=all_regions)),  # Sort from highest to lowest
         x=alt.X('OBS_VALUE:Q', stack='normalize', title='Percentage of homicide'),
-        color=alt.Color('sex:N', scale = color_sex, title = "Sex"),
+        color=alt.condition(alt.datum.OBS_VALUE != -999,
+        alt.Color('sex:N', scale = color_sex, title = "Sex"), alt.value('lightgray')),
         tooltip=[
         alt.Tooltip('name:N', title='Region'),
         alt.Tooltip('sex:N', title='Sex'),
-        alt.Tooltip('OBS_VALUE:Q', title='Rate of homicide', format='.2f'),
-        alt.Tooltip('Percentage:Q', title='% of homicide', format='.2f')
+        alt.Tooltip('OBS_VALUE_Display:N', title='Rate of homicide'),
+        alt.Tooltip('Percentage_Display:N', title='% of homicide')
     ]
     ).properties(
         width=550,

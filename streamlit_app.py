@@ -197,7 +197,7 @@ def main():
         )
 
         chart_global = alt.Chart(df_filtered).mark_bar().encode(
-            x=alt.X('age:N', sort = '-y', title = "Age Range", axis=alt.Axis(labelAngle=0) ),  # Ordenar de mayor a menor
+            x=alt.X('age:N', sort = '-y', title = "Age Range", axis=alt.Axis(labelAngle=0) ),  # Sort from highest to lowest
             y=alt.Y('mean(OBS_VALUE):Q', title='% of Women Victims of Violence '),
             color=alt.Color('age:N', scale = color_scale, title = "Age Range", legend=None ),
             tooltip=[
@@ -205,7 +205,6 @@ def main():
             alt.Tooltip('mean(OBS_VALUE):Q', title='% of Women Victims', format='.2f')
         ]
         ).properties(
-            width=250,
             height=500,
             title = alt.TitleParams(
             text='% of Women Victims by Age Range',
@@ -216,7 +215,7 @@ def main():
 
         # Create the chart with the order based on ‘max_value’.
         chart = alt.Chart(df_filtered).mark_bar().encode(
-            x=alt.X('geo:N', sort=alt.EncodingSortField(field='max_value', order='descending'), title = "Region"),  # Ordenar de mayor a menor
+            x=alt.X('geo:N', sort=alt.EncodingSortField(field='max_value', order='descending'), title = "Region", axis=alt.Axis(labelAngle=0)),  # Sort from highest to lowest
             y=alt.Y('OBS_VALUE:Q', stack='normalize', title='% of Women Victims of Violence '),
             color=alt.Color('age:N', scale = color_scale, title = "Age Range"),
             opacity=alt.condition(
@@ -230,13 +229,14 @@ def main():
                 alt.Tooltip('OBS_VALUE:Q', title='% of Women Victims', format='.2f')
             ]
         ).properties(
-            width=550,
             height=500,
             title= alt.TitleParams(
             text='% of Women Victims of Violence by Age Group and Region',
             align='center',
             anchor='middle'
             )
+        ).configure_axis(
+            labelFontSize=10.2
         )
 
         col1, col2 = st.columns([2, 1])
@@ -248,11 +248,13 @@ def main():
 
         st.markdown("")
         st.markdown("")
-        col1, col2 = st.columns([1, 2])
+        col1, col2 = st.columns([1, 2.4])
         with col1:
             st.altair_chart(chart_global, use_container_width=True)
         with col2:
             st.altair_chart(chart, use_container_width=True)
+        cols = st.columns([1,2])
+        with cols[1]:
             st.markdown("<p style='text-align: center; font-weight: normal;'>The age group with the highest percentage for each region is highlighted with greater opacity.</p>", unsafe_allow_html=True)
 
     with tab2:
@@ -270,7 +272,7 @@ def main():
                 col_idx = idx // items_per_col
                 with cols[col_idx]:
                     abbreviation = abbreviation_mapping.get(region, "")
-                    st.markdown(f'{region} ({abbreviation}): ![{color}](https://via.placeholder.com/15/{color.strip("#")}/000000?text=+)')
+                    st.markdown(f'![{color}](https://via.placeholder.com/15/{color.strip("#")}/000000?text=+) {region} ({abbreviation})')
 
         df_erate = load_data("data/employment_rate_noms.txt")
 
