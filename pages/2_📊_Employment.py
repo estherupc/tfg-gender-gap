@@ -22,7 +22,6 @@ initial_sidebar_state="expanded")
 
 st.title("📊 Employment")
 st.markdown("---")
-st.sidebar.header("Employment")
 st.write(
     """The labor market remains one of the critical areas where gender disparities are evident. This section examines the gender gap in employment rates, types of employment, positions held by women in senior management and in government, the gender pay gap and the labour force due to caring responsabilities. """
 )
@@ -45,6 +44,23 @@ with col1:
     tab1, tab2 = st.tabs(["Parliament", "Government"])
     st.write("")
     with tab1:
+        legend_html = """
+            <div style='position: relative; display: flex; justify-content: flex-end;'>
+                <div style='position: absolute; top: 50px; right: 40px; background-color: white; padding: 10px; border-radius: 15px;font-size: 12px;color: grey;'>
+                    <div style='display: flex; align-items: center;'>
+                        <div style='width: 20px; height: 20px; background-color: #af8dc3; margin-right: 10px;'></div>
+                        <span>Female</span>
+                    </div>
+                    <div style='display: flex; align-items: center; margin-top: 5px;'>
+                        <div style='width: 20px; height: 20px; background-color: #7fbf7b; margin-right: 10px;'></div>
+                        <span>Male</span>
+                    </div>
+                </div>
+            </div>
+        """
+        # Display the legend and pictograms in Streamlit
+        st.markdown(legend_html, unsafe_allow_html=True)
+
         st.markdown("###### Parliament Data (2023)")
         data_parl = data[data['org_inst'] == 'PARL_NAT']
         percentage_women = data_parl[data_parl['name'] == selected_country]['OBS_VALUE'].iloc[0]
@@ -104,27 +120,38 @@ with col1:
             margin=dict(t=0, b=0, l=0, r=0),
             width=500,
             height=400,
+            legend=dict(
+                font=dict(
+                    color='gray'
+                )
+            )
         )
 
+        config = {
+            'displayModeBar': False  # This hides the modebar
+        }
+
         # Mostrar la figura en Streamlit
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config=config)
 
     with tab2:
 
         legend_html = """
             <div style='position: relative; display: flex; justify-content: flex-end;'>
-                <div style='position: absolute; top: 100px; right: 290px; background-color: white; padding: 10px; border-radius: 15px;font-size: 12px;'>
+                <div style='position: absolute; top: 50px; right: 40px; background-color: white; padding: 10px; border-radius: 15px;font-size: 12px; color: grey;'>
                     <div style='display: flex; align-items: center;'>
-                        <div style='width: 20px; height: 20px; background-color: #a992e2; margin-right: 10px;'></div>
+                        <div style='width: 20px; height: 20px; background-color: #af8dc3; margin-right: 10px;'></div>
                         <span>Female</span>
                     </div>
                     <div style='display: flex; align-items: center; margin-top: 5px;'>
-                        <div style='width: 20px; height: 20px; background-color: #b6e5a4; margin-right: 10px;'></div>
+                        <div style='width: 20px; height: 20px; background-color: #7fbf7b; margin-right: 10px;'></div>
                         <span>Male</span>
                     </div>
                 </div>
             </div>
         """
+        # Display the legend and pictograms in Streamlit
+        st.markdown(legend_html, unsafe_allow_html=True)
 
         st.markdown("###### Government Data (2023)")
         data_gov = data[data['org_inst'] == 'GOV_NAT']
@@ -132,8 +159,8 @@ with col1:
         st.write(f"The percentage of seats held by women in {selected_country}'s government in 2023 is {percentage_women}%.")
 
         # Upload images
-        man_logo_path = "images/person-green.png"
-        woman_logo_path = "images/person-purple.png"
+        man_logo_path = "images/user-green.png"
+        woman_logo_path = "images/user-purple.png"
         man_logo = Image.open(man_logo_path)
         woman_logo = Image.open(woman_logo_path)
 
@@ -168,7 +195,7 @@ with col1:
                     x=x,
                     y=1.25,
                     sizex=1,
-                    sizey=1.5,
+                    sizey=7,
                     xanchor="center",
                     yanchor="middle"
                 )
@@ -182,9 +209,9 @@ with col1:
                     xref="x",
                     yref="y",
                     x=x,
-                    y=-0.25,
+                    y=-0.05,
                     sizex=1,
-                    sizey=1.5,
+                    sizey=7,
                     xanchor="center",
                     yanchor="middle"
                 )
@@ -198,19 +225,17 @@ with col1:
             ),
             yaxis=dict(
                 visible=False,
-                range=[-1, 2]
+                range=[-1.5, 2.5]
             ),
             margin=dict(l=10, r=20, t=10, b=10),
-            width=900,
+            width=1600,
             height=400
         )
 
         # Show the figure in Streamlit
-        st.plotly_chart(fig)
-
+        st.plotly_chart(fig, use_container_width=True, config=config)
 
 with col2:
-    st.markdown(legend_html, unsafe_allow_html=True)
     st.write(" ")
     st.write(" ")
     st.write(" ")
@@ -342,23 +367,15 @@ df_labour_force = df_labour_force[df_labour_force['sex'].isin(['F', 'M'])]
 df_labour_force['TIME_PERIOD'] = pd.to_numeric(df_labour_force['TIME_PERIOD'], errors='coerce')
 df_labour_force['OBS_VALUE'] = pd.to_numeric(df_labour_force['OBS_VALUE'], errors='coerce')
 df_labour_force = df_labour_force.loc[df_labour_force['TIME_PERIOD'] >= 2009]
-cols = st.columns([3, 2.5])
 
-with cols[0]:
-    selected_time_period = st.slider(
-        "Select a year:",
-        min_value=int(df_labour_force['TIME_PERIOD'].min()),
-        max_value=int(df_labour_force['TIME_PERIOD'].max()),
-        value=int(df_labour_force['TIME_PERIOD'].min()),
-        step=1
-    )
-
-# Filter data based on the slider control
-filtered_data = df_labour_force[df_labour_force['TIME_PERIOD'] == selected_time_period]
+all_years = df_labour_force['TIME_PERIOD'].unique()
+all_regions = df_labour_force['name'].unique()
+full_index = pd.MultiIndex.from_product([all_years, all_regions], names=['TIME_PERIOD', 'name'])
+full_df = pd.DataFrame(index=full_index).reset_index()
 
 # Pivoting the table to calculate the difference between women and men
-pivot_table = filtered_data.pivot_table(
-    index=['geo', 'name'],
+pivot_table = df_labour_force.pivot_table(
+    index=['geo', 'name', 'TIME_PERIOD'],
     columns='sex',
     values='OBS_VALUE'
 ).reset_index()
@@ -367,46 +384,36 @@ pivot_table = filtered_data.pivot_table(
 pivot_table['Difference'] = pivot_table['M'] - pivot_table['F']
 
 # Create a new DataFrame with the differences
-difference_data = pivot_table[['geo', 'name', 'Difference']]
+difference_data = pivot_table[['geo', 'name', 'Difference', 'TIME_PERIOD']]
 
 # Get the full list of regions
 all_regions = df_labour_force['geo'].unique().tolist()
+
 all_names = df_labour_force['name'].unique().tolist()
 
 geo_name_dict = dict(zip(all_regions, all_names))
-
-# Ensure that all regions are present in the difference data.
-difference_data = difference_data.set_index('geo').reindex(all_regions).reset_index()
 
 # Convert 'No Data' to NaN for the Altair chart
 difference_data['Difference'] = pd.to_numeric(difference_data['Difference'], errors='coerce')
 
 difference_data['name'] = difference_data['geo'].map(geo_name_dict)
 
+# Combine with the original DataFrame
+df_complete = pd.merge(full_df, difference_data, on=['TIME_PERIOD', 'name'], how='left')
+
 placeholder_value = -999
-difference_data['Difference'].fillna(placeholder_value, inplace=True)
-
-
-difference_data['Difference_Display'] = difference_data['Difference'].apply(
+df_complete['Difference'].fillna(placeholder_value, inplace=True)
+df_complete['Difference_Display'] = df_complete['Difference'].apply(
     lambda x: f"{x:.2f}%" if x != placeholder_value else "No Data"
 )
-
-# Obtain the full range of differences to establish the colour scale.
-df_pivot = df_labour_force.pivot_table(
-    index='geo',
-    columns='sex',
-    values='OBS_VALUE'
-).reset_index()
-
-df_pivot['Difference'] = df_pivot['M'] - df_pivot['F']
-full_range = max(abs(df_pivot['Difference'].min()), abs(df_pivot['Difference'].max()))
 
 # Define the colour scale for the difference
 color_scale = alt.Scale(domain=[-4.5, -3.6,-2.7, -1.8, -0.9, 0, 0.9, 1.8, 2.7, 3.6, 4.5],  # Adjust the domain according to your data
                         range=[ '#40004b',  '#762a83'  ,'#9970ab' , '#c2a5cf', '#e7d4e8', '#f7f7f7', '#d9f0d3', '#a6dba0', '#5aae61','#1b7837',   '#00441b',])
 
 # Create the heatmap using the differences
-heatmap = alt.Chart(difference_data).mark_rect().encode(
+heatmap = alt.Chart(df_complete).mark_rect().encode(
+    x = alt.X('TIME_PERIOD:O', title='Year'),
     y=alt.Y('name:N', title='Region', sort=all_regions),
     color=alt.condition(
         alt.datum.Difference != -999,
@@ -429,15 +436,32 @@ heatmap = alt.Chart(difference_data).mark_rect().encode(
     tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('Difference_Display:N', title='Difference')]
 ).properties(
     width=200,
-    height=700,
-    title=f'Percentage of Gender Differences in Population (M - F) for {selected_time_period}'
+    height=730,
+    title=f'Percentage of Gender Differences (M - F) by Region and Year'
 ).configure_axis(
     labelFontSize=9,  # Smaller font size for labels
 )
-col1, col2 = st.columns(2)
-with col1:
+col1, col2 = st.columns([1, 1.2])
+
+with col2:
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
     st.altair_chart(heatmap, use_container_width=True)
+
+with col1:
+    selected_time_period = st.slider(
+        "Select a year:",
+        min_value=int(df_labour_force['TIME_PERIOD'].min()),
+        max_value=int(df_labour_force['TIME_PERIOD'].max()),
+        value=int(df_labour_force['TIME_PERIOD'].min()),
+        step=1
+    )
 # Mostrar el gráfico en Streamlit
+filtered_data = df_labour_force[df_labour_force['TIME_PERIOD'] == selected_time_period]
 
 filtered_data = filtered_data[filtered_data['sex'] == 'F']
 
@@ -446,21 +470,21 @@ top_ratio_countries = filtered_data.nlargest(10, 'OBS_VALUE')
 bottom_ratio_countries = filtered_data.nsmallest(10, 'OBS_VALUE')
 
 combined_ratio_countries = pd.concat([top_ratio_countries, bottom_ratio_countries], axis=0)
-combined_ratio_countries['Category'] = ['Top'] * len(top_ratio_countries) + ['Bottom'] * len(bottom_ratio_countries)
+combined_ratio_countries['Category'] = ['More'] * len(top_ratio_countries) + ['Less'] * len(bottom_ratio_countries)
 
 # Create the Altair graphic
 chart = alt.Chart(combined_ratio_countries).mark_bar().encode(
-    x=alt.X('OBS_VALUE:Q', title='% Women outside the labour force'),
+    x=alt.X('OBS_VALUE:Q', title='% Women outside the labour force', scale=alt.Scale(domain=[df_labour_force['OBS_VALUE'].min(), df_labour_force['OBS_VALUE'].max()])),
     y=alt.Y('name:N', title='Region', sort=alt.EncodingSortField(field= 'OBS_VALUE', order='descending')),
-    color=alt.Color('Category:N', title='Category', scale=alt.Scale(domain=['Top', 'Bottom'], range=['#F9B7B2', '#ec432c'])),
+    color=alt.Color('Category:N', title='Category', scale=alt.Scale(domain=['More', 'Less'], range=['#F9B7B2', '#ec432c'])),
     tooltip=[alt.Tooltip('name:N', title='Region'),alt.Tooltip('OBS_VALUE:Q', title='Percentage of population')]
 ).properties(
     width=500,
     height=700,
-    title=f'Top/Bottom 10 Women Outside Labour for {selected_time_period}'
+    title=f'More/Less 10 Women Outside Labour for {selected_time_period}'
 )
-with col2:
-# Show the graph in Streamlit
+with col1:
+    # Show the graph in Streamlit
     st.altair_chart(chart, use_container_width=True)
 
 st.markdown("### Gender pay gap in unadjusted form")
@@ -651,7 +675,7 @@ lines = alt.Chart(filtered_data).mark_rule().encode(
 
 annotations = alt.Chart(pd.DataFrame({
     'y': [80, 0, 1900, 1820],
-    'text': ['Higher Rate', 'of Women', 'Higher Rate', 'of Men']
+    'text': ['Female', 'Higher Rate', 'Male', 'Higher Rate']
 })).mark_text(
     align='left',
     baseline='middle',

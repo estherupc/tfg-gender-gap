@@ -35,7 +35,6 @@ st.set_page_config(page_title="Education", page_icon="📚", layout="wide",
 initial_sidebar_state="expanded",)
 st.title("📚 Education")
 st.markdown("---")
-st.sidebar.header("Education")
 st.write(
     """Education is a key factor in achieving gender equality and empowering all individuals. In this section, we delve into the gender gaps in educational attainment, focusing on metrics such as early school leavers, tertiary education rates, adult participation in learning and participation in early childhood education."""
 )
@@ -61,7 +60,7 @@ with st.expander('## Legend of Region Colors'):
         col_idx = idx // items_per_col
         with cols[col_idx]:
             abbreviation = abbreviation_mapping.get(region, "")
-            st.markdown(f'{region} ({abbreviation}): ![{color}](https://via.placeholder.com/15/{color.strip("#")}/000000?text=+)')
+            st.markdown(f'![{color}](https://via.placeholder.com/15/{color.strip("#")}/000000?text=+) {region} ({abbreviation})')
 
 df_teritary = load_data("data/teritary_educational.txt")
 # Define dataframes and selections
@@ -118,7 +117,7 @@ base_chart = alt.Chart(filtered_data).mark_line(point=True).encode(
     strokeDash=alt.StrokeDash('sex:N', legend=alt.Legend(title='Sex'), sort='descending'),
 )
 
-# Define the lines for each gender
+# Define the lines for each sex
 lines_F = base_chart.transform_filter(
     alt.datum.sex == 'Female'
 ).encode(
@@ -181,7 +180,7 @@ ch = alt.layer(
 ).properties(
     width=700,
     height=500,
-    title= 'Yearly % Difference from EU27 Average by Region and Gender',
+    title= 'Yearly % Difference from European Union Average by Region and Sex',
 )
 
 ch = alt.layer(
@@ -290,7 +289,7 @@ with st.expander('## Legend of Region Colors'):
         col_idx = idx // items_per_col
         with cols[col_idx]:
             abbreviation = abbreviation_mapping.get(region, "")
-            st.markdown(f'{region} ({abbreviation}): ![{color}](https://via.placeholder.com/15/{color.strip("#")}/000000?text=+)')
+            st.markdown(f'![{color}](https://via.placeholder.com/15/{color.strip("#")}/000000?text=+) {region} ({abbreviation})')
 
 df_digital = load_data("data/basic_digital_filter.txt")
 
@@ -382,7 +381,7 @@ ch = alt.layer(
 ).properties(
     width=600,
     height=500,
-    title = 'Trends in Digital Skills by Region and Gender (2021-2023)'
+    title = 'Trends in Digital Skills by Region and Sex (2021-2023)'
 )
 st.altair_chart(ch, use_container_width=True)
 
