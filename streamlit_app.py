@@ -427,6 +427,7 @@ def main():
             df_last_year = combined_data[combined_data["TIME_PERIOD"] == selected_year]
             # Group by region, name and time period
             grouped = df_last_year.groupby(['geo', 'name', 'TIME_PERIOD'])
+            grouped_all = combined_data.groupby(['geo', 'name', 'TIME_PERIOD'])
 
             # Calculating the difference between men and women for each metric
             def calculate_differences(group):
@@ -438,15 +439,19 @@ def main():
                     return pd.Series([None] * (len(group.columns) - 4), index=group.columns[4:])
 
             differences = grouped.apply(calculate_differences)
+            differences_all = grouped_all.apply(calculate_differences)
 
             # Resetting the index to make it easier to work with the resulting data
             differences = differences.reset_index()
+            differences_all = differences_all.reset_index()
 
             # Rename columns to reflect that they are differences
             differences.columns = ['geo', 'name', 'TIME_PERIOD'] + [f'{col}_Difference' for col in combined_data.columns[4:]]
+            differences_all.columns = ['geo', 'name', 'TIME_PERIOD'] + [f'{col}_Difference' for col in combined_data.columns[4:]]
 
             # Calculate an overall difference measure (sum of the absolute differences)
             differences['Total_Difference'] = differences.iloc[:, 3:].sum(axis=1)
+            differences_all['Total_Difference'] = differences_all.iloc[:, 3:].sum(axis=1)
 
             # Order countries by overall measure of difference
             sorted_differences = differences.sort_values(by='Total_Difference', ascending=False)
@@ -459,11 +464,10 @@ def main():
 
             top_bottom_differences['Difference'] = top_bottom_differences['Total_Difference'].apply(lambda x: 'Male > Female' if x > 0 else 'Female > Male')
 
-
             # Create the bar chart
             bar_chart = alt.Chart(top_bottom_differences).mark_bar().encode(
                 x=alt.X('geo:N', title='Region', sort='-y', axis=alt.Axis(labelAngle=0)),
-                y=alt.Y('Total_Difference:Q', title='Percentage Difference'),
+                y=alt.Y('Total_Difference:Q', title='Percentage Difference', scale=alt.Scale(domain=[differences_all['Total_Difference'].min(), differences_all['Total_Difference'].max()])),
                 color=alt.Color('Difference:N', scale=alt.Scale(domain=['Male > Female', 'Female > Male'], range=['#7fbf7b', '#af8dc3']), legend=alt.Legend(title="Difference")),
                 tooltip=[
                 alt.Tooltip('name:N', title='Region'),
