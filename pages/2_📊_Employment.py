@@ -329,7 +329,7 @@ detailed_chart = alt.Chart(df_management).transform_filter(
     selection
 ).mark_bar().encode(
     x=alt.X('prof_pos:N', axis=alt.Axis(labelAngle=0), title='Professional Position'),
-    y=alt.Y('OBS_VALUE:Q', title='Percentage of Women', scale=alt.Scale([0, 50])),
+    y=alt.Y('OBS_VALUE:Q', title='Percentage of Women', scale=alt.Scale(domain=[0, 50])),
     column=alt.Column('name:N', title='Region'),
     color=alt.Color('pos:N',  scale=alt.Scale(domain=["Board members", "Executives"],range=["#843d34", "#c0e15c"]), title="Professional Position"),
     tooltip=[alt.Tooltip('pos:N', title='Professional Position'), alt.Tooltip('OBS_VALUE:Q', title='Percentage'), alt.Tooltip('name:N', title='Region')]
