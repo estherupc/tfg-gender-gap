@@ -284,7 +284,7 @@ with cols[0]:
 df_management = df_management[df_management['TIME_PERIOD'] == selected_time_period]
 mean_value = df_management['OBS_VALUE'].mean()
 
-st.markdown("Click on a bar to see the detailed breakdown of professional positions for the selected region.")
+st.markdown("➡️ Click on a bar to see the detailed breakdown of professional positions for the selected region.")
 
 # Overall percentage of women in senior positions by region
 overall_chart = alt.Chart(df_management).mark_bar().encode(
@@ -643,6 +643,8 @@ cols = st.columns([3, 2.5])
 
 with cols[0]:
     selected_year = st.slider('Select a year', int(years.min()), int(years.max()), int(years.max()))
+
+st.write("➡️ Click on the legend to filter and view only the selected category.")
 
 # Filter the DataFrame based on the selected year
 filtered_data = df_employment[df_employment['TIME_PERIOD'] == selected_year]
