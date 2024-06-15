@@ -643,15 +643,16 @@ with st.expander("Understanding the Data"):
 
 with st.expander("Frequently Asked Questions"):
     st.write("Find answers to common questions below:")
+    st.markdown("""
+    - What do the colors represent?
+      - **Purple**: ![#af8dc3](https://via.placeholder.com/15/af8dc3/af8dc3.png) Represents female sex.
+      - **Green**: ![#7fbf7b](https://via.placeholder.com/15/7fbf7b/7fbf7b.png) Represents male sex.
+      - **Gray**: ![#cccccc](https://via.placeholder.com/15/cccccc/cccccc.png) Indicates that there are no available data.
 
-    st.markdown("#### ")
-    st.write("")
-
-    st.markdown("#### ")
-    st.write("")
-
-    st.markdown("#### ")
-    st.write("")
+    - How do I interpret the difference between men and women?
+        - **Purple Gradient**: Indicates a higher prevalence or value for females compared to males. The darker the purple, the greater the difference in favor of females.
+        - **Green Gradient**: Indicates a higher prevalence or value for males compared to females. The darker the green, the greater the difference in favor of males.
+    """)
 
 with st.expander("Need More Help?"):
     st.write("""
