@@ -280,8 +280,6 @@ def main():
 
         df_childhood = load_data("data/childhood_noms.txt")
 
-        df_healthy_life = load_data("data/healthy_life_noms.txt")
-
         df_health_good = load_data("data/health_good_noms.txt")
 
         df_labour_force = load_data("data/labour_force_noms.txt")
@@ -294,8 +292,6 @@ def main():
 
         df_unemployment = load_data("data/unemployment_noms.txt")
 
-        df_digital = load_data("data/basic_digital_noms.txt")
-
         datasets = {
             "Medical Examination": df_medical,
             "Early Childhood Education": df_childhood,
@@ -305,9 +301,7 @@ def main():
             "Tertiary Education": df_teritary,
             "Employed Rate": df_erate,
             "Unemployment": df_unemployment,
-            "Basic Digital Skills": df_digital,
             "Caring Responsibilities":df_labour_force,
-            "Healthy Life Years": df_healthy_life
         }
 
         combined_data = pd.merge(df_medical, df_labour_force, on=['sex', 'name', 'geo', 'TIME_PERIOD'], suffixes=('_medical', '_care'))
@@ -318,21 +312,18 @@ def main():
         combined_data = pd.merge(df_erate, combined_data, on=['sex', 'name', 'geo', 'TIME_PERIOD'], suffixes=('_emp', ''))
         combined_data = pd.merge(df_unemployment, combined_data, on=['sex', 'name', 'geo', 'TIME_PERIOD'], suffixes=('_unemp', ''))
         combined_data = pd.merge(df_childhood, combined_data, on=['sex', 'name', 'geo', 'TIME_PERIOD'], suffixes=('_childhood', ''))
-        combined_data = pd.merge(df_healthy_life, combined_data, on=['sex', 'name', 'geo', 'TIME_PERIOD'], suffixes=('_life', ''))
-
         combined_data['TIME_PERIOD'] = pd.to_numeric(combined_data['TIME_PERIOD'], errors='coerce')
 
         combined_data.rename(columns={
             'OBS_VALUE_edu': 'Tertiary Studies',
             'OBS_VALUE_childhood': 'Childhood Education',
-            'OBS_VALUE_leavers': 'Education/Training Dropouts',
+            'OBS_VALUE_leavers': 'Early Leavers',
             'OBS_VALUE_emp': 'Employed Rate',
-            'OBS_VALUE': 'Percived\nGood Health',
-            'OBS_VALUE_medical': 'Unmet Need\nfor Medical Care',
+            'OBS_VALUE': 'Percived Good Health',
+            'OBS_VALUE_medical': 'Unmet Need for Medical Care',
             'OBS_VALUE_adult': 'Adult Learning',
             'OBS_VALUE_unemp': 'Unemployment',
             'OBS_VALUE_care': 'Labour Force',
-            'OBS_VALUE_life': 'Healthy Life Years',
         }, inplace=True)
 
         cols = st.columns([3, 2.5])
@@ -351,7 +342,6 @@ def main():
             )
             regions = np.intersect1d(df_erate['name'].unique(), df_teritary['name'].unique())
             regions = np.intersect1d(df_childhood['name'].unique(), regions)
-            regions = np.intersect1d(df_healthy_life['name'].unique(), regions)
             regions = np.intersect1d(df_health_good['name'].unique(), regions)
             regions = np.intersect1d(df_labour_force['name'].unique(), regions)
             regions = np.intersect1d(df_leavers['name'].unique(), regions)
@@ -412,16 +402,13 @@ def main():
                         ticktext=['0.2', '0.4', '0.6', '0.8', '1.0']
                     ),
                 ),
+                margin=dict(l=25),
                 showlegend=True,
                 title=''
             )
 
             st.plotly_chart(fig, use_container_width=True)
 
-
-        ############################################
-        ###### PARALLEL COORDINATE CHART ###########
-        ############################################
         with col2:
             for column in combined_data.columns[4:]:
                 combined_data[column] = pd.to_numeric(combined_data[column], errors='coerce')
@@ -496,24 +483,22 @@ def main():
         columns_of_interest = [
             'Employed Rate',
             'Tertiary Studies',
-            'Percived\nGood Health',
+            'Percived Good Health',
             'Adult Learning',
-            'Education/Training Dropouts',
+            'Early Leavers',
             'Childhood Education',
             'Unemployment',
             'Labour Force',
-            'Healthy Life Years',
         ]
         simplified_columns = {
             'Employed Rate': 'Employment',
             'Tertiary Studies': 'Tertiary Studies',
-            'Percived\nGood Health': 'Good Health',
+            'Percived Good Health': 'Good Health',
             'Adult Learning': 'Adult Learning',
-            'Education/Training Dropouts': 'Early Leavers',
+            'Early Leavers': 'Early Leavers',
             'Childhood Education': 'Early Education',
             'Unemployment': 'Unemployment',
             'Labour Force': 'Labour Force',
-            'Healthy Life Years': 'Life Years',
         }
         df_mean = df_mean[df_mean['sex'] != 'T']
         df_parallel = df_mean[['sex'] + columns_of_interest]
