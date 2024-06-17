@@ -28,6 +28,14 @@ st.write(
 
 st.markdown("---")
 
+def assign_color_category(row):
+        if row['name'] == 'European Union':
+            return row['name']
+        elif row['OBS_VALUE'] > 0:
+            return 'Male > Female'
+        else:
+            return 'Female > Male'
+
 data = pd.read_csv('data/government_2023.txt')
 
 st.markdown("### Seats held by women in national parliaments and governments")
@@ -282,6 +290,9 @@ with cols[0]:
         step=1
     )
 df_management = df_management[df_management['TIME_PERIOD'] == selected_time_period]
+df_management['Percentage_Display'] = df_management['OBS_VALUE'].apply(
+    lambda x: f"{x:.2f}%"
+)
 mean_value = df_management['OBS_VALUE'].mean()
 
 st.markdown("➡️ Click on a bar to see the detailed breakdown of professional positions for the selected region.")
@@ -295,7 +306,7 @@ overall_chart = alt.Chart(df_management).mark_bar().encode(
         alt.value('#444444'),
         alt.value('#ec432c')
     ),
-    tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('mean(OBS_VALUE):Q', title='Total Percentage')],
+    tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('mean(OBS_VALUE):Q', title='Total Percentage'),  alt.Tooltip('TIME_PERIOD:O', title='Year')],
 ).properties(
     width=700,
     height=400,
@@ -332,7 +343,7 @@ detailed_chart = alt.Chart(df_management).transform_filter(
     y=alt.Y('OBS_VALUE:Q', title='Percentage of Women', scale=alt.Scale(domain=[0, 50])),
     column=alt.Column('name:N', title='Region'),
     color=alt.Color('pos:N',  scale=alt.Scale(domain=["Board members", "Executives"],range=["#843d34", "#c0e15c"]), title="Professional Position"),
-    tooltip=[alt.Tooltip('pos:N', title='Professional Position'), alt.Tooltip('OBS_VALUE:Q', title='Percentage'), alt.Tooltip('name:N', title='Region')]
+    tooltip=[alt.Tooltip('pos:N', title='Professional Position'), alt.Tooltip('Percentage_Display:N', title='Percentage'), alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
 ).properties(
     width={'step': 60},
     height=370,
@@ -433,11 +444,11 @@ heatmap = alt.Chart(df_complete).mark_rect().encode(
             )),
         alt.value('lightgray')
     ),
-    tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('Difference_Display:N', title='Difference')]
+    tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('Difference_Display:N', title='Difference'),  alt.Tooltip('TIME_PERIOD:O', title='Year')]
 ).properties(
     width=200,
     height=730,
-    title=f'Percentage of Gender Differences (M - F) by Region and Year'
+    title=f'Percentage of Gender Differences (Male - Female) by Region and Year'
 ).configure_axis(
     labelFontSize=9,  # Smaller font size for labels
 )
@@ -471,13 +482,15 @@ bottom_ratio_countries = filtered_data.nsmallest(10, 'OBS_VALUE')
 
 combined_ratio_countries = pd.concat([top_ratio_countries, bottom_ratio_countries], axis=0)
 combined_ratio_countries['Category'] = ['More'] * len(top_ratio_countries) + ['Less'] * len(bottom_ratio_countries)
-
+combined_ratio_countries['Percentage_Display'] = combined_ratio_countries['OBS_VALUE'].apply(
+    lambda x: f"{x:.2f}%"
+)
 # Create the Altair graphic
 chart = alt.Chart(combined_ratio_countries).mark_bar().encode(
     x=alt.X('OBS_VALUE:Q', title='% Women outside the labour force', scale=alt.Scale(domain=[df_labour_force['OBS_VALUE'].min(), df_labour_force['OBS_VALUE'].max()])),
     y=alt.Y('name:N', title='Region', sort=alt.EncodingSortField(field= 'OBS_VALUE', order='descending')),
     color=alt.Color('Category:N', title='Category', scale=alt.Scale(domain=['More', 'Less'], range=['#F9B7B2', '#ec432c'])),
-    tooltip=[alt.Tooltip('name:N', title='Region'),alt.Tooltip('OBS_VALUE:Q', title='Percentage of population')]
+    tooltip=[alt.Tooltip('name:N', title='Region'),alt.Tooltip('Percentage_Display:N', title='% of women'),  alt.Tooltip('TIME_PERIOD:O', title='Year')]
 ).properties(
     width=500,
     height=700,
@@ -511,16 +524,26 @@ with col1:
 
     # Filter the DataFrame based on the selected year
     filtered_data = df_gender_pay[df_gender_pay['TIME_PERIOD'] == selected_year]
+    filtered_data['Percentage_Display'] = filtered_data['OBS_VALUE'].apply(
+        lambda x: f"{x:.2f}%"
+    )
+    # Apply the function to create a new color category column
+    filtered_data['color_category'] = filtered_data.apply(assign_color_category, axis=1)
 
-    mean_value = filtered_data['OBS_VALUE'].mean()
+    # Create a color scale
+    color_scale = alt.Scale(
+        domain=['European Union', 'Male > Female', 'Female > Male'],
+        range=['#444444', '#7fbf7b', '#af8dc3']
+    )
+
 
     sorted_geo = filtered_data.sort_values('OBS_VALUE', ascending=False)['name'].tolist()
     points = alt.Chart(filtered_data).mark_point(size=40, filled=True).encode(
         x=alt.X('OBS_VALUE:Q', title='% of average gross hourly earnings of men',
                 scale=alt.Scale(domain=[min_value , max_value])),  # Escala ajustada para visualización
         y=alt.Y('name:N', title='Region', sort=sorted_geo),
-        color=alt.condition(alt.datum.OBS_VALUE > 0, alt.value('#7fbf7b'), alt.value('#af8dc3')),
-        tooltip=[alt.Tooltip('name:N', title='Region'),alt.Tooltip('OBS_VALUE:Q', title='% of gender pay gap'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
+        color = alt.Color('color_category:N', scale=color_scale, legend=alt.Legend(title='Category')),
+        tooltip=[alt.Tooltip('name:N', title='Region'),alt.Tooltip('Percentage_Display:N', title='Gender pay gap'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
     ).properties(
         width=600,
         height=730
@@ -533,8 +556,8 @@ with col1:
         y=alt.Y('name:N', title='Region', sort=sorted_geo),  # Ensure the sorting key is consistent
         x=alt.X('y0:Q', axis=alt.Axis(grid=True), scale=alt.Scale(domain=[min_value , max_value])),
         x2=alt.X2('OBS_VALUE:Q'),
-        color=alt.condition(alt.datum.OBS_VALUE > 0, alt.value('#7fbf7b'), alt.value('#af8dc3')),
-        tooltip=[alt.Tooltip('name:N', title='Region'),alt.Tooltip('OBS_VALUE:Q', title='% of gender pay gap'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
+        color=alt.Color('color_category:N', scale=color_scale),
+        tooltip=[alt.Tooltip('name:N', title='Region'),alt.Tooltip('Percentage_Display:N', title='Gender pay gap'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
     )
 
     # Pay gap target (0%)
@@ -588,7 +611,7 @@ with col2:
     placeholder_value = -999
     df_complete['OBS_VALUE'].fillna(placeholder_value, inplace=True)
     df_complete['OBS_VALUE_Display'] = df_complete['OBS_VALUE'].apply(
-        lambda x: f"{x:.2f}" if x != placeholder_value else "No Data"
+        lambda x: f"{x:.2f}%" if x != placeholder_value else "No Data"
     )
 
     heatmap = alt.Chart(df_complete).mark_rect().encode(
@@ -607,11 +630,11 @@ with col2:
                 gradientThickness=20,
                 gradientStrokeWidth=0.5,
                 tickCount=3,  # Limit the number of ticks
-                labelExpr="datum.value == -22 ? ' More Female' : datum.value == 0 ? ' Equal' : datum.value == 22 ? ' More Male' : ''"
+                labelExpr="datum.value == -20 ? ' More Female' : datum.value == 0 ? ' Equal' : datum.value == 20 ? ' More Male' : ''"
                 )),
             alt.value('lightgrey')  # Color for missing values
         ),
-        tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('OBS_VALUE_Display:N', title='% Gender gap'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
+        tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('OBS_VALUE_Display:N', title='Gender pay gap'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
     ).properties(
         width=500,
         height=730,
@@ -648,6 +671,9 @@ st.write("➡️ Click on the legend to filter and view only the selected catego
 
 # Filter the DataFrame based on the selected year
 filtered_data = df_employment[df_employment['TIME_PERIOD'] == selected_year]
+filtered_data['Percentage_Display'] = filtered_data['OBS_VALUE'].apply(
+    lambda x: f"{x:.2f}%"
+)
 
 selection = alt.selection_multi(fields=['type'], bind='legend')
 
@@ -656,7 +682,7 @@ points = alt.Chart(filtered_data).mark_point(size= 40, filled=True).encode(
     x=alt.X('name:O', title = "Region"),  # Order from highest to lowest
     y=alt.Y('OBS_VALUE:Q', title='Employment Gap (Percentage Points)',  scale = alt.Scale(domain = [min_value, max_value])),
     color=alt.Color('type:N', scale = color_scale, legend=alt.Legend(title="Type of Employment", labelLimit=500, orient='top')),
-    tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year'), alt.Tooltip('type:N', title='Type'), alt.Tooltip('OBS_VALUE:Q', title='Percentage')],
+    tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year'), alt.Tooltip('type:N', title='Type'), alt.Tooltip('Percentage_Display:N', title='Difference')],
     opacity=alt.condition(selection, alt.value(1), alt.value(0.2))
 ).properties(
     width=800,
@@ -799,6 +825,12 @@ global_mean['geo'] = 'Global Mean'
 
 # Combining data from the regions with the global average
 df_combined = pd.concat([df_gap, global_mean], ignore_index=True)
+df_gap['Gap_Display'] = df_gap['gap'].apply(
+    lambda x: f"{x:.2f}%"
+)
+global_mean['Gap_Display'] = global_mean['gap'].apply(
+    lambda x: f"{x:.2f}%"
+)
 
 mean_lines = alt.Chart(pd.DataFrame({'y': [0]})).mark_rule(color='#ec432c', size=2).encode(y='y:Q')
 
@@ -811,13 +843,13 @@ selected_region = st.selectbox('Select a region:', regions)
 # Creating the Streamgraph with Altair
 select_lines = alt.Chart(df_gap[df_gap['name'] == selected_region]).mark_line().encode(
     x=alt.X('TIME_PERIOD:O', title='Year', axis=alt.Axis(labelAngle=0)),
-    y=alt.Y('gap:Q', title='Gender Employment Rate Gap (M - F)'),
+    y=alt.Y('gap:Q', title='% Gender Employment Rate Gap (Male - Female)'),
     color=alt.Color('name:N', scale=alt.Scale(range=['#1E90FF']), legend=alt.Legend(title="Region")),
     detail='geo:N',
     tooltip=[
         alt.Tooltip('name:N', title='Region'),
         alt.Tooltip('TIME_PERIOD:O', title='Year'),
-        alt.Tooltip('gap:Q', title='Employment Rate Gap'),
+        alt.Tooltip('Gap_Display:N', title='Employment Rate Gap'),
     ]
 ).properties(
     width=800,
@@ -827,7 +859,7 @@ select_lines = alt.Chart(df_gap[df_gap['name'] == selected_region]).mark_line().
 
 noselect_lines = alt.Chart(df_gap[df_gap['name'] != selected_region]).mark_line().encode(
     x=alt.X('TIME_PERIOD:O', title='Year', axis=alt.Axis(labelAngle=0)),
-    y=alt.Y('gap:Q', title='Gender Employment Rate Gap (M - F)'),
+    y=alt.Y('gap:Q', title='% Gender Employment Rate Gap (Male - Female)'),
     color=alt.value('lightgray'),
     detail='geo:N',
     tooltip=[
@@ -849,7 +881,7 @@ mean_line = alt.Chart(global_mean).mark_line(color='black').encode(
     color=alt.Color('legend:N',  scale=alt.Scale(range=['black']), legend=alt.Legend(title=" ")),
     tooltip=[
         alt.Tooltip('TIME_PERIOD:O', title='Year'),
-        alt.Tooltip('gap:Q', title='Global Mean Employment Rate Gap'),
+        alt.Tooltip('Gap_Display:N', title='Global Mean Employment Rate Gap'),
     ]
 ).transform_calculate(
     legend='"Global Mean"'
@@ -889,7 +921,7 @@ points = alt.Chart(df_gap[df_gap['name'] == selected_region]).mark_point(filled=
     y=alt.Y('gap:Q'),
     color=alt.Color('name:N', scale=alt.Scale(range=['#1E90FF']), legend=None),  # Evitar la leyenda duplicada
     opacity=alt.condition(nearest, alt.value(1), alt.value(0)),  # Mostrar solo cuando hay una selección
-    tooltip=[alt.Tooltip('gap:Q', title='Employment Rate Gap'), alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
+    tooltip=[alt.Tooltip('Gap_Display:N', title='Employment Rate Gap'), alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
 ).transform_filter(
     nearest
 )
@@ -900,7 +932,7 @@ points2 = alt.Chart(global_mean).mark_point(filled=True).encode(
     detail='geo:N',
     color=alt.Color('legend:N',  scale=alt.Scale(range=['black']), legend=None),  # Evitar la leyenda duplicada
     opacity=alt.condition(nearest, alt.value(1), alt.value(0)),  # Mostrar solo cuando hay una selección
-    tooltip=[alt.Tooltip('gap:Q', title='Global Mean Rate Gap', format=".2f"), alt.Tooltip('TIME_PERIOD:O', title='Year')]
+    tooltip=[alt.Tooltip('Gap_Display:N', title='Global Mean Rate Gap'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
 ).transform_filter(
     nearest
 ).transform_calculate(

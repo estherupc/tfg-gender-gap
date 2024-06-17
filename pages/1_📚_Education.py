@@ -65,7 +65,7 @@ with st.expander('## Legend of Region Colors'):
 df_teritary = load_data("data/teritary_educational.txt")
 # Define dataframes and selections
 df_reference = df_teritary[(df_teritary['geo'] == 'EU') & (df_teritary['sex'] == 'T')]
-options_geo = [geo for geo in df_teritary['name'].unique() if geo not in ["EU"]]
+options_geo = [geo for geo in df_teritary['name'].unique() if geo not in ["European Union"]]
 options_geo.sort()
 df_teritary = df_teritary[df_teritary['sex'].isin(['F', 'M'])]
 
@@ -108,6 +108,9 @@ filtered_data = df_teritary[
 
 filtered_data['sex'] = filtered_data['sex'].replace({'M': 'Male', 'F': 'Female'})
 all_years = sorted(df_teritary['TIME_PERIOD'].unique())
+filtered_data['Difference_Display'] = filtered_data['Difference_from_EU'].apply(
+    lambda x: f"{x:.2f}%"
+)
 
 # Create the base chart showing the difference instead of the OBS_VALUE values
 base_chart = alt.Chart(filtered_data).mark_line(point=True).encode(
@@ -150,7 +153,7 @@ rules = alt.Chart(filtered_data).mark_rule(color='gray').encode(
 
 points = base_chart.mark_point().encode(
     opacity=alt.condition(nearest, alt.value(1), alt.value(0)),  # Mostrar solo cuando hay una selección
-    tooltip=[alt.Tooltip('TIME_PERIOD:O', title='Year'), alt.Tooltip('Difference_from_EU:Q', title='% Difference from EU'), alt.Tooltip('sex:N', title='Sex'), alt.Tooltip('name:N', title='Region')]
+    tooltip=[alt.Tooltip('TIME_PERIOD:O', title='Year'), alt.Tooltip('Difference_Display:N', title='Difference from EU'), alt.Tooltip('sex:N', title='Sex'), alt.Tooltip('name:N', title='Region')]
 )
 
 # Text displayed around the selected point
@@ -204,7 +207,7 @@ df_nini = df_nini[df_nini['sex'].isin(['F', 'M'])]
 df_nini['TIME_PERIOD'] = df_nini['TIME_PERIOD'].astype(int)
 df_nini = df_nini[df_nini['sex'].isin(['F', 'M'])]
 
-min_year = int("2009")
+min_year = int("2002")
 max_year = int(df_nini['TIME_PERIOD'].max())
 all_years = sorted(df_nini['TIME_PERIOD'].unique())
 
@@ -232,7 +235,7 @@ combined_data = pd.merge(all_countries_df, filtered_data, on=['name', 'TIME_PERI
 placeholder_value = -999
 combined_data['Difference'].fillna(placeholder_value, inplace=True)
 combined_data['tooltip'] = combined_data.apply(
-    lambda row: 'No Data' if row['Difference'] == -999 else f"{row['Difference']:.2f}", axis=1
+    lambda row: 'No Data' if row['Difference'] == -999 else f"{row['Difference']:.2f}%", axis=1
 )
 
 color_scale = alt.Scale(domain=[-20, -16,-12, -8, -4, 0, 4, 8, 12, 16, 20],  # Adjust the domain according to your data
@@ -262,7 +265,7 @@ base = alt.Chart(data_url_geojson).mark_geoshape(
     ),
     tooltip=[
     alt.Tooltip('properties.NAME:N', title='Region'),
-    alt.Tooltip('tooltip:N', title='Difference (%)')
+    alt.Tooltip('tooltip:N', title='Difference')
 ]
 ).transform_lookup(
     lookup='properties.NAME',  # Set this to the right property in your GeoJSON
@@ -270,7 +273,7 @@ base = alt.Chart(data_url_geojson).mark_geoshape(
 ).properties(
     width=1000,
     height=700,
-    title=f'Difference (Male - Female) in Early Leavers from Education and Training in {year}'
+    title=f'% Difference (Male - Female) in Early Leavers from Education and Training in {year} by Region'
 )
 st.altair_chart(base, use_container_width=True)
 
@@ -329,11 +332,14 @@ filtered_data = df_digital[
     (df_digital['name'].isin(selected_countries)) &
     (df_digital['name'] != 'EU')
 ]
+filtered_data['Percentage_Display'] = filtered_data['OBS_VALUE'].apply(
+    lambda x: f"{x:.2f}%"
+)
 
 # Create the base chart showing the difference instead of the OBS_VALUE values
 base_chart = alt.Chart(filtered_data).mark_line(point=True).encode(
     x=alt.X('TIME_PERIOD:O', scale=alt.Scale(domain=[2021, 2023]), title='Year', axis=alt.Axis(labelAngle=0)),
-    y=alt.Y('OBS_VALUE:Q', scale=alt.Scale(domain=[df_digital['OBS_VALUE'].min(), df_digital['OBS_VALUE'].max()]), title='Percentage'),
+    y=alt.Y('OBS_VALUE:Q', scale=alt.Scale(domain=[df_digital['OBS_VALUE'].min(), df_digital['OBS_VALUE'].max()]), title='Percentage of individuals'),
     color=alt.Color('name:N', scale=color_scale, title='Region'),
     strokeDash=alt.StrokeDash('sex:N', legend=alt.Legend(title='Sex'), sort='descending'),
 )
@@ -367,7 +373,7 @@ rules = alt.Chart(filtered_data).mark_rule(color='gray').encode(
 
 points = base_chart.mark_point().encode(
     opacity=alt.condition(nearest, alt.value(1), alt.value(0)),  # Show only when there is a selection
-    tooltip=[alt.Tooltip('TIME_PERIOD:O', title = 'Year'), alt.Tooltip('OBS_VALUE:Q', title='Percentage'), alt.Tooltip('sex:N', title='Sex'), alt.Tooltip('name:N', title='Region')]
+    tooltip=[alt.Tooltip('TIME_PERIOD:O', title = 'Year'), alt.Tooltip('Percentage_Display:N', title='Percentage'), alt.Tooltip('sex:N', title='Sex'), alt.Tooltip('name:N', title='Region')]
 )
 
 # Text displayed around the selected point
@@ -381,7 +387,7 @@ ch = alt.layer(
 ).properties(
     width=600,
     height=500,
-    title = 'Trends in Digital Skills by Region and Sex (2021-2023)'
+    title = 'Trends in Basic Digital Skills by Region and Sex (2021-2023)'
 )
 st.altair_chart(ch, use_container_width=True)
 
@@ -397,7 +403,9 @@ with cols[0]:
     selected_country = st.selectbox('Select a region:', unique_regions)
 df_childhood['sex'] = df_childhood['sex'].replace({'M': 'Male', 'F': 'Female'})
 df_filtered = df_childhood[df_childhood['name'] == selected_country]
-
+df_filtered['Percentage_Display'] = df_filtered['OBS_VALUE'].apply(
+    lambda x: f"{x:.2f}%"
+)
 # Define fixed domains
 x_domain = df_childhood['TIME_PERIOD'].unique()
 y_domain = [0, df_childhood['OBS_VALUE'].max()]
@@ -409,7 +417,7 @@ bars = alt.Chart(df_filtered[df_filtered['sex'] == 'Female']).mark_bar().encode(
     x=alt.X('TIME_PERIOD:O', title='Year', scale=alt.Scale(domain=x_domain), axis=alt.Axis(labelAngle=0)),
     y=alt.Y('OBS_VALUE:Q', title='% of Population Aged 3 to Primary School Start', scale=alt.Scale(domain=y_domain)),
     color=alt.Color('sex:N', scale=color_sex, legend=alt.Legend(title="Sex")),
-    tooltip=[ alt.Tooltip('OBS_VALUE:Q', title='Female Population'), alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
+    tooltip=[ alt.Tooltip('Percentage_Display:N', title='Female Population'), alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
 )
 
 # Line graph for the male population
@@ -417,7 +425,7 @@ line = alt.Chart(df_filtered[df_filtered['sex'] == 'Male']).mark_line(point=True
     x=alt.X('TIME_PERIOD:O', title='Year', scale=alt.Scale(domain=x_domain)),
     y=alt.Y('OBS_VALUE:Q'),
     color=alt.Color('sex:N', scale=color_sex, legend=None),
-    tooltip=[ alt.Tooltip('OBS_VALUE:Q', title='Male Population'), alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
+    tooltip=[ alt.Tooltip('Percentage_Display:N', title='Male Population'), alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
 )
 
 # Combines both graphics
@@ -429,7 +437,7 @@ combined_chart = alt.layer(
 ).properties(
     width=800,
     height=400,
-    title=''
+    title=f'Participation in early childhood education in {selected_country} (2013-2021)'
 ).configure_point(
     size=100
 ).configure_axis(

@@ -53,6 +53,9 @@ with cols[0]:
     df_health_good = load_data("data/health_good_noms.txt")
     df_health_good = df_health_good[df_health_good['sex'].isin(['F', 'M'])]
     df_health_good['sex'] = df_health_good['sex'].replace({'M': 'Male', 'F': 'Female'})
+    df_health_good['Percentage_Display'] = df_health_good['OBS_VALUE'].apply(
+        lambda x: f"{x:.2f}%"
+    )
     common = np.intersect1d(df_healthy_life['name'].unique(), df_health_good['name'].unique())
     common.sort()
 
@@ -79,7 +82,7 @@ with cols[0]:
         x=alt.X('OBS_VALUE_Life:Q', title='Healthy life years', scale=alt.Scale(domain=(min_value_life, max_value_life))),
         y=alt.Y('OBS_VALUE_Health:Q', title='Percentage of Percived Good Health', scale=alt.Scale(domain=(min_value_health, max_value_health))),
         color=alt.Color('sex:N', scale = color_sex, legend=alt.Legend(title="Sex")),
-        tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year'), alt.Tooltip('OBS_VALUE_Life:Q', title='Healthy Life Years'), alt.Tooltip('OBS_VALUE_Health:Q', title='% of Good Health')]
+        tooltip=[alt.Tooltip('name:N', title='Region'), alt.Tooltip('TIME_PERIOD:O', title='Year'), alt.Tooltip('OBS_VALUE_Life:Q', title='Healthy Life Years'), alt.Tooltip('Percentage_Display:N', title='Perceived Good Health')]
     ).properties(
         width=400,
         height=400,
@@ -98,7 +101,7 @@ with cols[1]:
         x=alt.X('TIME_PERIOD:O', title='Year', axis=alt.Axis(labelAngle=0, grid=True)),
         y=alt.Y('mean(OBS_VALUE)', title='Percentage of Percived Good Health'),
         color=alt.Color('sex:N', scale = color_sex, legend=alt.Legend(title="Sex")),
-        tooltip=[alt.Tooltip('mean(OBS_VALUE):Q', title='% of Mean Good Health', format='.2f'), alt.Tooltip('TIME_PERIOD:O', title='Year'), ]
+        tooltip=[alt.Tooltip('mean(OBS_VALUE):Q', title='% Regions\' Good Health', format='.2f'), alt.Tooltip('TIME_PERIOD:O', title='Year'), ]
     ).properties(
         width=400,
         height=400,
@@ -319,14 +322,14 @@ with cols[2]:
         x=alt.X('TIME_PERIOD:O', title='Year'),
         y=alt.Y('mean(OBS_VALUE):Q', title='Mean Rate Homicide'),
         color=alt.Color('sex:N', scale=color_sex, title='Sex'),
-        tooltip = [ alt.Tooltip('mean(OBS_VALUE):Q', title= 'Mean Rate Homicide', format=".2f"), alt.Tooltip('sex:N', title='Sex'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
+        tooltip = [ alt.Tooltip('mean(OBS_VALUE):Q', title= 'Regions\' Rate Homicide', format=".2f"), alt.Tooltip('sex:N', title='Sex'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
     )
 
     chart_male = alt.Chart(df_accidents[df_accidents['sex'] == 'Male']).mark_area(opacity=0.8).encode(
         x=alt.X('TIME_PERIOD:O', title='Year'),
         y=alt.Y('mean(OBS_VALUE):Q', title='Mean Rate Homicide'),
         color=alt.Color('sex:N', scale=color_sex, title='Sex'),
-        tooltip = [alt.Tooltip('mean(OBS_VALUE):Q', title= 'Mean Rate Homicide', format=".2f"), alt.Tooltip('sex:N', title='Sex'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
+        tooltip = [alt.Tooltip('mean(OBS_VALUE):Q', title= 'Regions\' Rate Homicide', format=".2f"), alt.Tooltip('sex:N', title='Sex'), alt.Tooltip('TIME_PERIOD:O', title='Year')]
     )
 
     # Combine graphics using alt.layer
@@ -345,6 +348,9 @@ with cols[2]:
     df_accidents['TIME_PERIOD'] = pd.to_numeric(df_accidents['TIME_PERIOD'], errors='coerce')
     df_erate['sex'] = df_erate['sex'].replace({'M': 'Male', 'F': 'Female'})
     df_erate = df_erate[df_erate['sex']!= "T"]
+    df_erate['Percentage_Display'] = df_erate['OBS_VALUE'].apply(
+        lambda x: f"{x:.2f}%"
+    )
     df_accidents = df_accidents[df_accidents['sex']!= "T"]
 
     df_merge = pd.merge(df_erate, df_accidents, on=['name', 'TIME_PERIOD', 'sex'], suffixes=('_Emp', '_Acc'))
@@ -353,11 +359,11 @@ with cols[2]:
         x = alt.X('OBS_VALUE_Emp:Q', title='Percentage of population employed'),
         y= alt.Y('OBS_VALUE_Acc:Q', title= 'Rate of incidents'),
         color=alt.Color('sex:N', scale=color_sex, title='Sex'),
-        tooltip=[alt.Tooltip('OBS_VALUE_Emp:Q', title='% Employment'), alt.Tooltip('OBS_VALUE_Acc:Q', title='Rate of incidents'), alt.Tooltip('sex:N', title='Sex')]
+        tooltip=[alt.Tooltip('Percentage_Display:N', title='Employment'), alt.Tooltip('OBS_VALUE_Acc:Q', title='Rate of incidents'), alt.Tooltip('sex:N', title='Sex')]
     ).properties(
         width=270,
         height=270,
-        title='Correlation between Employed Population and Accidents Rate'
+        title='Correlation Employed Population vs Accidents Rate'
     )
     st.altair_chart(scatter_plot, use_container_width=True)
 
@@ -452,7 +458,7 @@ missing_chart = alt.Chart(df_missing).mark_point(
 combined_chart = alt.layer(pyramid_chart, point_chart, missing_chart).properties(
     width=600,
     height=710,
-    title='Gender Difference (Male - Female) in Unmet Medical Needs by Region'
+    title=f'Gender Difference (Male - Female) in Unmet Medical Needs by Region in {selected_year}'
 ).configure_axis(
     labelFontSize=9,  # Smaller font size for labels
 )
@@ -525,6 +531,7 @@ with cols[0]:
 
     all_years = df_homicide_l['TIME_PERIOD'].unique()
     all_regions = df_homicide_l['name'].unique()
+    all_regions.sort()
     all_sex = df_homicide_l['sex'].unique()
     full_index = pd.MultiIndex.from_product([all_regions, all_sex], names=['name', 'sex'])
     full_df = pd.DataFrame(index=full_index).reset_index()
@@ -559,7 +566,7 @@ with cols[0]:
         width=550,
         height=730,
         title= alt.TitleParams(
-        text=f'Standardised Death Rate Due to Homicide by Gender (Year: {selected_year})',
+        text=f'Standardised Death Rate Due to Homicide by Gender in {selected_year}',
         )
     ).configure_axis(
         labelFontSize=9,  # Smaller font size for labels
