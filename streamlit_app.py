@@ -337,7 +337,7 @@ def main():
         col1, col2 = st.columns([3.3, 2])
         with col1:
             st.markdown(
-                "<h6 style='text-align: center; color: #333333;'>Comparison of Women Rates Metrics</h6>",
+                f"<h6 style='text-align: center; color: #333333;'>Comparison of Women Rates Metrics in {selected_year}</h6>",
                 unsafe_allow_html=True
             )
             regions = np.intersect1d(df_erate['name'].unique(), df_teritary['name'].unique())
@@ -450,7 +450,9 @@ def main():
 
             # Concatenate results for visualisation
             top_bottom_differences = pd.concat([top_3_differences, bottom_3_differences])
-
+            top_bottom_differences['Difference_Display'] = top_bottom_differences['Total_Difference'].apply(
+                lambda x: f"{x:.2f}%"
+            )
             top_bottom_differences['Difference'] = top_bottom_differences['Total_Difference'].apply(lambda x: 'Male > Female' if x > 0 else 'Female > Male')
 
             # Create the bar chart
@@ -460,13 +462,12 @@ def main():
                 color=alt.Color('Difference:N', scale=alt.Scale(domain=['Male > Female', 'Female > Male'], range=['#7fbf7b', '#af8dc3']), legend=alt.Legend(title="Difference")),
                 tooltip=[
                 alt.Tooltip('name:N', title='Region'),
-                alt.Tooltip('Total_Difference:Q', title='Difference'), ]
+                alt.Tooltip('Difference_Display:N', title='Difference')]
             ).properties(
                 width=150,
                 height=690,
-                title='Top - Bottom Regions Gender Differences (M-F)'
+                title=f'Top 3 Regions Gender Differences in {selected_year}'
             )
-
             # Show the graph in Streamlit
             st.altair_chart(bar_chart, use_container_width=True)
 
