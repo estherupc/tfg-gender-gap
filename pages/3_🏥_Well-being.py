@@ -542,7 +542,7 @@ with cols[0]:
     placeholder_value = -999
     df_complete['OBS_VALUE'].fillna(placeholder_value, inplace=True)
     df_complete['OBS_VALUE_Display'] = df_complete['OBS_VALUE'].apply(
-        lambda x: f"{x:.2f}%" if x != placeholder_value else "No Data"
+        lambda x: f"{x:.2f}" if x != placeholder_value else "No Data"
     )
     df_complete['Percentage'].fillna(placeholder_value, inplace=True)
     df_complete['Percentage_Display'] = df_complete['Percentage'].apply(
